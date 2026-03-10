@@ -22,5 +22,5 @@ solve = length . filter validTriangle
 main :: IO ()
 main = do
     source <- getContents
-    putStrLn $ "Part 1: " ++ (show $ solve $ parse1 source)
-    putStrLn $ "Part 2: " ++ (show $ solve $ parse2 source)
+    putStrLn $ "Part 1: " ++ show (solve $ parse1 source)
+    putStrLn $ "Part 2: " ++ show (solve $ parse2 source)

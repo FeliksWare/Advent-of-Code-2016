@@ -26,8 +26,9 @@ parse = map (parseExpr . wordsBy '-') . filter (/="") . lines
         parseIdAndChecksum (a:b:_) = (read a, b)
 
 isReal :: ([String], (Int, String)) -> Bool
-isReal (name, (_, checksum)) = (map extractChar $ take 5 $ List.sortBy compareFrequences $ charFrequence $ concat name) == checksum
+isReal (name, (_, checksum)) = generateChecksum name == checksum
     where
+        generateChecksum = map extractChar . take 5 . List.sortBy compareFrequences . charFrequence . concat
         charFrequence s = Map.toList $ Map.fromListWith (+) [(c, 1) | c <- s]
         compareFrequences (c1, f1) (c2, f2) = case compare f2 f1 of
             EQ -> compare c1 c2
@@ -52,5 +53,5 @@ part2 = extractId . findRoom . map decryptName . filter isReal
 main :: IO ()
 main = do
     source <- getContents
-    putStrLn $ "Part 1: " ++ (show $ part1 $ parse source)
-    putStrLn $ "Part 2: " ++ (show $ part2 $ parse source)
+    putStrLn $ "Part 1: " ++ show (part1 $ parse source)
+    putStrLn $ "Part 2: " ++ show (part2 $ parse source)

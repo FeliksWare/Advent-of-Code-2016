@@ -38,7 +38,8 @@ keypadDigit :: Keypad -> (Int, Int) -> Char
 keypadDigit keypad position = Maybe.fromJust $ Map.lookup position keypad
 
 solve :: Keypad -> (Int, Int) -> [String] -> String
-solve keypad position = foldr (:) "" . map (keypadDigit keypad . foldl (move keypad) position)
+solve keypad position = foldr ((:) . keypadDigit keypad . foldl (move keypad) position) ""
+
 
 part1 :: [String] -> String
 part1 = solve normalKeypad (1, 1)
@@ -49,5 +50,5 @@ part2 = solve diamondKeypad (0, 2)
 main :: IO ()
 main = do
     source <- lines <$> getContents
-    putStrLn $ "Part 1: " ++ (show $ part1 source)
-    putStrLn $ "Part 2: " ++ (show $ part2 source)
+    putStrLn $ "Part 1: " ++ show (part1 source)
+    putStrLn $ "Part 2: " ++ show (part2 source)
