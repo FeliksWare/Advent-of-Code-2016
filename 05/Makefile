@@ -6,7 +6,7 @@ main: main.hs
 	ghc main.hs
 
 deps:
-	cabal install --lib utf8-string bytestring cryptohash-md5 --package-env .
+	cabal install --lib utf8-string bytestring cryptohash-md5 containers --package-env .
 
 clean:
 	rm -f main main.hi main.o
