@@ -7,6 +7,12 @@ import Data.Char
 
 type Grid = Map.Map (Int, Int) Bool
 
+gridWidth :: Int
+gridWidth = 50
+
+gridHeight :: Int
+gridHeight = 6
+
 data Instruction = Rect Int Int | RotateRow Int Int | RotateColumn Int Int
     deriving (Show)
 
@@ -24,22 +30,29 @@ parseLine s | "rect " `List.isPrefixOf` s = parseInstruction Rect s
 parseLine s | "rotate row y=" `List.isPrefixOf` s = parseInstruction RotateRow s
 parseLine s | "rotate column x=" `List.isPrefixOf` s = parseInstruction RotateColumn s
 
-executeRect :: Int -> Int -> (Int, Int) -> Bool -> Bool
-executeRect w h (x, y) _ | x < w && y < h = True
-executeRect _ _ _ b = b
+executeRect :: Int -> Int -> Grid -> Grid
+executeRect w h m = foldl insert m [(x, y) | x <- [0..w-1], y <- [0..h-1]]
+    where
+        insert m' k = Map.insert k True m'
 
-executeRotateRow :: Grid -> Int -> Int -> (Int, Int) -> Bool -> Bool
-executeRotateRow m y' n (x, y) _ | y == y' = Maybe.fromJust $ Map.lookup ((x - n) `mod` 50, y) m
-executeRotateRow _ _ _ _ b = b
+executeRotateRow :: Int -> Int -> Grid -> Grid
+executeRotateRow y n m = foldl insert m [0..gridWidth-1]
+    where
+        insert m' x = case Map.lookup ((x - n) `mod` gridWidth, y) m of
+            Just a -> Map.insert (x, y) a m'
+            _ -> m'
 
-executeRotateColumn :: Grid -> Int -> Int -> (Int, Int) -> Bool -> Bool
-executeRotateColumn m x' n (x, y) _ | x == x' =  Maybe.fromJust $ Map.lookup (x, (y - n) `mod` 6) m
-executeRotateColumn _ _ _ _ b = b
+executeRotateColumn :: Int -> Int -> Grid -> Grid
+executeRotateColumn x n m = foldl insert m [0..gridHeight-1]
+    where
+        insert m' y = case Map.lookup (x, (y - n) `mod` gridHeight) m of
+            Just a -> Map.insert (x, y) a m'
+            _ -> m'
 
-execute :: Grid -> Instruction -> Grid
-execute m (Rect w h) = Map.mapWithKey (executeRect w h) m
-execute m (RotateRow y n) = Map.mapWithKey (executeRotateRow m y n) m
-execute m (RotateColumn x n) = Map.mapWithKey (executeRotateColumn m x n) m
+execute ::Grid -> Instruction -> Grid
+execute m (Rect w h) = executeRect w h m
+execute m (RotateRow y n) = executeRotateRow y n m
+execute m (RotateColumn x n) = executeRotateColumn x n m
 
 parse :: String -> [Instruction]
 parse = map parseLine . filter (/="") . lines
