@@ -44,10 +44,22 @@ execute m (RotateColumn x n) = Map.mapWithKey (executeRotateColumn m x n) m
 parse :: String -> [Instruction]
 parse = map parseLine . filter (/="") . lines
 
+solve :: [Instruction] -> Grid
+solve = foldl execute (Map.fromList [((x, y), False) | x <- [0..49], y <-[0..5]])
+
 part1 :: [Instruction] -> Int
-part1 = length . Map.filter id . foldl execute (Map.fromList [((x, y), False) | x <- [0..49], y <-[0..5]])
+part1 = length . Map.filter id . solve
+
+part2 :: [Instruction] -> String
+part2 instructions = let grid = solve instructions in
+    unlines $ [[displayChar $ Map.lookup (x, y) grid | x <- [0..49]] | y <- [0..5]]
+        where
+            displayChar (Just True) = '#'
+            displayChar _ = ' '
 
 main :: IO ()
 main = do
     source <- parse <$> getContents
     putStrLn $ "Part 1: " ++ show (part1 source)
+    putStrLn "Part 2: "
+    putStrLn $ part2 source
