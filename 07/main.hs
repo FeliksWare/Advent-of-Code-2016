@@ -1,5 +1,6 @@
 module Main where
-import Text.XHtml (sup)
+
+import qualified Data.Maybe as Maybe
 
 parseExprL :: String -> ([String], [String]) -> ([String], [String])
 parseExprL [] t = t 
@@ -28,13 +29,29 @@ hasABBA s | hasABBA' $ take 4 s = True
 hasABBA [] = False
 hasABBA s = hasABBA $ drop 1 s
 
+getABA' :: String -> [(Char, Char)]
+getABA' [a, b, c] | a /= b && a == c = [(a, b)]
+getABA' _ = []
+
+getABA :: String -> [(Char, Char)]
+getABA [] = [] 
+getABA s = getABA' (take 3 s) ++ getABA (drop 1 s)
+
 supportsTLS :: ([String], [String]) -> Bool
 supportsTLS (l, r) = any hasABBA l && not (any hasABBA r)
 
 part1 :: [([String], [String])] -> Int
 part1 = length . filter supportsTLS
 
+supportsSSL :: ([String], [String]) -> Bool
+supportsSSL (l, r) = any corresponding $ [(x, y) | x <- concatMap getABA l, y <- concatMap getABA r]
+    where corresponding ((a, b), (b', a')) = a == a' && b == b'
+
+part2 :: [([String], [String])] -> Int
+part2 = length . filter supportsSSL
+
 main :: IO ()
 main = do
     source <- parse <$> getContents
     putStrLn $ "Part 1: " ++ show (part1 source)
+    putStrLn $ "Part 2: " ++ show (part2 source)
