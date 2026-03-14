@@ -1,11 +1,11 @@
 module Main where
 
 import qualified Data.List as List
-import qualified Data.Map as Map
+import qualified Data.Set as Set
 import qualified Data.Maybe as Maybe
 import Data.Char
 
-type Grid = Map.Map (Int, Int) Bool
+type Grid = Set.Set (Int, Int)
 
 gridWidth :: Int
 gridWidth = 50
@@ -31,23 +31,21 @@ parseLine s | "rotate row y=" `List.isPrefixOf` s = parseInstruction RotateRow s
 parseLine s | "rotate column x=" `List.isPrefixOf` s = parseInstruction RotateColumn s
 
 executeRect :: Int -> Int -> Grid -> Grid
-executeRect w h m = foldl insert m [(x, y) | x <- [0..w-1], y <- [0..h-1]]
+executeRect w h s = foldl insert s [(x, y) | x <- [0..w-1], y <- [0..h-1]]
     where
-        insert m' k = Map.insert k True m'
+        insert s' k = Set.insert k s'
 
 executeRotateRow :: Int -> Int -> Grid -> Grid
 executeRotateRow y n m = foldl insert m [0..gridWidth-1]
     where
-        insert m' x = case Map.lookup ((x - n) `mod` gridWidth, y) m of
-            Just a -> Map.insert (x, y) a m'
-            _ -> m'
+        insert m' x | Set.member ((x - n) `mod` gridWidth, y) m = Set.insert (x, y) m'
+        insert m' x = Set.delete (x, y) m'
 
 executeRotateColumn :: Int -> Int -> Grid -> Grid
 executeRotateColumn x n m = foldl insert m [0..gridHeight-1]
     where
-        insert m' y = case Map.lookup (x, (y - n) `mod` gridHeight) m of
-            Just a -> Map.insert (x, y) a m'
-            _ -> m'
+        insert m' y | Set.member (x, (y - n) `mod` gridHeight) m = Set.insert (x, y) m'
+        insert m' y = Set.delete (x, y) m'
 
 execute ::Grid -> Instruction -> Grid
 execute m (Rect w h) = executeRect w h m
@@ -58,17 +56,17 @@ parse :: String -> [Instruction]
 parse = map parseLine . filter (/="") . lines
 
 solve :: [Instruction] -> Grid
-solve = foldl execute (Map.fromList [((x, y), False) | x <- [0..49], y <-[0..5]])
+solve = foldl execute Set.empty
 
 part1 :: [Instruction] -> Int
-part1 = length . Map.filter id . solve
+part1 = length . solve
 
 part2 :: [Instruction] -> String
 part2 instructions = let grid = solve instructions in
-    unlines $ [[displayChar $ Map.lookup (x, y) grid | x <- [0..49]] | y <- [0..5]]
+    unlines $ [[displayChar $ Set.member (x, y) grid | x <- [0..gridWidth-1]] | y <- [0..gridHeight-1]]
         where
-            displayChar (Just True) = '#'
-            displayChar _ = ' '
+            displayChar True = '#'
+            displayChar False = ' '
 
 main :: IO ()
 main = do
