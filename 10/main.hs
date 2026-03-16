@@ -75,7 +75,16 @@ part1' c s = part1'' c s $ botsWith2 s
 part1 :: [Instruction] -> Entity
 part1 i = part1' (initialCommands i) (initialState i)
 
+part2' :: Commands -> State -> Int
+part2' c s = case [Map.lookup (Output 0) s, Map.lookup (Output 1) s, Map.lookup (Output 2) s] of
+    [Just [a], Just [b], Just [c]] -> a * b * c
+    _ -> part2' c $ simulateStep c s
+
+part2 :: [Instruction] -> Int
+part2 i = part2' (initialCommands i) (initialState i)
+
 main :: IO ()
 main = do
     source <- parse <$> getContents
     putStrLn $ "Part 1: " ++ show (part1 source)
+    putStrLn $ "Part 2: " ++ show (part2 source)
