@@ -42,7 +42,11 @@ eval program (pc, state) = (pc, state)
 part1 :: [Ins] -> Int
 part1 program = Maybe.fromMaybe 0 $ Map.lookup "a" $ snd $ eval program (0, Map.empty)
 
+part2 :: [Ins] -> Int
+part2 program = Maybe.fromMaybe 0 $ Map.lookup "a" $ snd $ eval program (0, Map.singleton "c" 1)
+
 main :: IO ()
 main = do
     source <- parse <$> getContents
     putStrLn $ "Part 1: " ++ show (part1 source)
+    putStrLn $ "Part 2: " ++ show (part2 source)
