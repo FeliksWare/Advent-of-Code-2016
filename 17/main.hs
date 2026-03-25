@@ -25,14 +25,22 @@ validPosition ((x, y), _) = 1 <= x && x <= 4 && 1 <= y && y <= 4
 nextPositions :: String -> ((Int, Int), String) -> [((Int, Int), String)]
 nextPositions passcode position@(coordinate, path) = filter validPosition $ map (nextPosition position) $ openDoors passcode path
 
-solve :: String -> (Int, Int) -> [((Int, Int), String)] -> String
-solve passcode destination (position@(coordinate, path):positions) | coordinate == destination = path
-                                                                   | otherwise = solve passcode destination $ positions ++ nextPositions passcode position
+solveShortest :: String -> (Int, Int) -> [((Int, Int), String)] -> String
+solveShortest passcode destination (position@(coordinate, path):positions) | coordinate == destination = path
+                                                                           | otherwise = solveShortest passcode destination $ positions ++ nextPositions passcode position
 
 part1 :: String -> String
-part1 passcode = solve passcode (4, 4) [((1, 1), "")]
+part1 passcode = solveShortest passcode (4, 4) [((1, 1), "")]
+
+solveLongest :: String -> (Int, Int) -> ((Int, Int), String) -> Int
+solveLongest passcode destination position@(coordinate, path) | coordinate == destination = length path
+                                                              | otherwise = foldr (max . solveLongest passcode destination) 0 $ nextPositions passcode position
+
+part2 :: String -> Int
+part2 passcode = solveLongest passcode (4, 4) ((1, 1), "")
 
 main :: IO ()
 main = do
     source <- getContents
     putStrLn $ "Part 1: " ++ show (part1 source)
+    putStrLn $ "Part 2: " ++ show (part2 source)
