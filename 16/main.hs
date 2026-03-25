@@ -16,7 +16,11 @@ checksum s = let s' = checksum' s in if even $ length s' then checksum s' else s
 part1 :: String -> String
 part1 = checksum . randomData 272
 
+part2 :: String -> String
+part2 = checksum . randomData 35651584
+
 main :: IO ()
 main = do
     source <- getContents
     putStrLn $ "Part 1: " ++ part1 source
+    putStrLn $ "Part 2: " ++ part2 source
