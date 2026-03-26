@@ -23,7 +23,11 @@ buildFloor count line | count <= 1 = [line]
 part1 :: String -> Int
 part1 = foldr ((+) . countSafeTiles) 0 . buildFloor 40
 
+part2 :: String -> Int
+part2 = foldr ((+) . countSafeTiles) 0 . buildFloor 400000
+
 main :: IO ()
 main = do
     source <- getLine
-    putStrLn $ "Part 1: \n" ++ show (part1 source)
+    putStrLn $ "Part 1: " ++ show (part1 source)
+    putStrLn $ "Part 2: " ++ show (part2 source)
